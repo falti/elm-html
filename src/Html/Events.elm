@@ -6,6 +6,7 @@ module Html.Events
     , onMouseDown, onMouseUp
     , onMouseEnter, onMouseLeave
     , onMouseOver, onMouseOut
+    , onDrag, onDragEnd, onDragEnter, onDragExit, onDragLeave, onDragOver, onDragStart, onDrop
     , on, onWithOptions, Options, defaultOptions
     , targetValue, targetChecked, keyCode
     ) where
@@ -27,6 +28,10 @@ of events as seen in the [TodoMVC][] example.
       onMouseDown, onMouseUp,
       onMouseEnter, onMouseLeave,
       onMouseOver, onMouseOut
+
+# Drag'n'Drop Helpers
+@docs onDrag, onDragEnd, onDragEnter, onDragExit,
+  onDragLeave, onDragOver, onDragStart, onDrop
 
 # Custom Event Handlers
 @docs on, targetValue, targetChecked, keyCode,
@@ -132,6 +137,10 @@ keyCode =
 messageOn : String -> Signal.Address a -> a -> Attribute
 messageOn name addr msg =
   on name value (\_ -> Signal.message addr msg)
+
+messageOnWithOptions : String -> Options -> Signal.Address a -> a -> Attribute
+messageOnWithOptions name options addr msg =
+  onWithOptions name options value (\_ -> Signal.message addr msg)
 
 
 {-|-}
@@ -245,4 +254,50 @@ onSubmit addr msg =
 
 onSubmitOptions : Options
 onSubmitOptions =
-  { defaultOptions | preventDefault <- True }
+  { defaultOptions | preventDefault = True }
+
+-- Drag'n'Drop events
+
+{-|-}
+onDragStart : Signal.Address a -> a -> Attribute
+onDragStart =
+  messageOn "dragstart"
+
+{-|-}
+onDragEnd : Signal.Address a -> a -> Attribute
+onDragEnd =
+  messageOnWithOptions "dragend" onDropOptions
+
+{-|-}
+onDragEnter : Signal.Address a -> a -> Attribute
+onDragEnter =
+  messageOnWithOptions "dragenter" onDropOptions
+
+{-|-}
+onDragExit : Signal.Address a -> a -> Attribute
+onDragExit =
+  messageOnWithOptions "dragexit" onDropOptions
+
+{-|-}
+onDragLeave : Signal.Address a -> a -> Attribute
+onDragLeave =
+  messageOnWithOptions "dragleave" onDropOptions
+
+{-|-}
+onDragOver : Signal.Address a -> a -> Attribute
+onDragOver =
+  messageOnWithOptions "dragover" onDropOptions
+
+{-|-}
+onDrag : Signal.Address a -> a -> Attribute
+onDrag =
+  messageOn "drag"
+
+onDropOptions : Options
+onDropOptions =
+  { defaultOptions | preventDefault = True }
+
+{-|-}
+onDrop : Signal.Address a -> a -> Attribute
+onDrop =
+  messageOnWithOptions "drop" onDropOptions
