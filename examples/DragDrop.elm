@@ -3,8 +3,8 @@ module DragDrop where
 import Html exposing (Html, Attribute, text, div, input)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onDrag, onDragEnd, onDragEnter, onDragExit, onDragLeave, onDragOver, onDragStart, onDrop)
-import Json.Decode as Json exposing (andThen)
 import String
+import List.Extra exposing (interweave)
 
 
 -- VIEW
@@ -12,30 +12,30 @@ import String
 view : DnD -> Html
 view dnd =
   div []
-    [ messageSink dnd
-    , draggableText
-    , dropArea
-    ]
+    (messageSink dnd :: interweave draggebles droppables)
 
 
-draggableText : Html
-draggableText =
+draggableText : String -> Html
+draggableText label =
     div[ 
       draggable "true"
     , dragStyle
-    , onDragStart actions.address DragStart
-   -- , onDragEnd actions.address DragEnd
-    ][ text "Drag me" ]
+    , onDragStart actions.address (DragStart label)
+    ][ text label ]
 
-dropArea : Html
-dropArea =
+draggebles : List Html
+draggebles = [draggableText "Drag1", draggableText "Drag2"]
+
+droppables : List Html
+droppables = [dropArea "Drag1", dropArea "Drag2"]
+
+dropArea : String -> Html
+dropArea label =
   div[ 
     dropzone "move"
   , dropStyle
   , onDragOver actions.address DragOver
-  --, onDragEnter actions.address DragEnter
-  --, onDragLeave actions.address DragLeave
-  , onDrop actions.address Drop
+  , onDrop actions.address (Drop label)
   ][]
 
 dragStyle : Attribute
@@ -74,7 +74,7 @@ myStyle =
 
 -- SIGNALS
 
-type DnD = None | DragStart | DragLeave | DragEnter | DragEnd | Drop | DragOver
+type DnD = None | DragStart String | DragLeave | DragEnter | DragEnd | Drop String | DragOver
 
 
 main : Signal Html
